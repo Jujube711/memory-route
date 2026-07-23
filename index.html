@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>记忆航线</title>
+  <style>
+    :root {
+      --navy: #102a43;
+      --blue: #3478f6;
+      --teal: #20b8a6;
+      --orange: #f59e62;
+      --green: #55b889;
+      --ink: #17233b;
+      --muted: #758198;
+      --bg: #f4f7fb;
+      --card: rgba(255,255,255,.94);
+      --line: #e8edf5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, #d9f8f3 0, transparent 28%),
+        radial-gradient(circle at 90% 20%, #dceaff 0, transparent 30%),
+        var(--bg);
+    }
+    button { font: inherit; }
+    .manager-entry { position: fixed; z-index: 50; right: 22px; top: 22px; padding: 11px 15px; border-radius: 14px; text-decoration: none; color: white; background: linear-gradient(135deg,#3478f6,#20b8a6); box-shadow: 0 10px 25px rgba(39,101,159,.22); font-size: 13px; font-weight: 700; }
+    .stage {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 14px;
+    }
+    .phone {
+      width: min(100%, 410px);
+      height: min(880px, calc(100vh - 36px));
+      min-height: 690px;
+      position: relative;
+      overflow: hidden;
+      border: 8px solid #10213a;
+      border-radius: 38px;
+      background: #f7f9fc;
+      box-shadow: 0 28px 80px rgba(26, 56, 94, .22);
+    }
+    .phone::before {
+      content: "";
+      position: absolute;
+      z-index: 20;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 104px;
+      height: 24px;
+      border-radius: 14px;
+      background: #10213a;
+    }
+    .screen { display: none; height: 100%; overflow-y: auto; padding-bottom: 92px; scrollbar-width: none; }
+    .screen.active { display: block; }
+    .screen::-webkit-scrollbar { display: none; }
+    .hero {
+      position: relative;
+      min-height: 272px;
+      overflow: hidden;
+      color: white;
+      padding: 48px 22px 24px;
+      background: linear-gradient(145deg, #15385f 0%, #226f8b 62%, #32b9ad 100%);
+      border-radius: 0 0 32px 32px;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 130px;
+      left: -36px;
+      bottom: -72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      box-shadow: 170px -12px 0 rgba(255,255,255,.07);
+    }
+    .eyebrow { margin: 0 0 8px; font-size: 13px; color: rgba(255,255,255,.72); }
+    h1 { margin: 0; font-size: 25px; letter-spacing: .2px; }
+    .estimate { margin-top: 8px; font-size: 14px; color: rgba(255,255,255,.78); }
+    .route { position: relative; height: 92px; margin-top: 18px; }
+    .route-line {
+      position: absolute;
+      left: 10px; right: 8px; top: 48px;
+      border-top: 2px dashed rgba(255,255,255,.55);
+      transform: rotate(-4deg);
+    }
+    .island { position: absolute; width: 52px; height: 24px; border-radius: 50%; background: #8ed6b2; box-shadow: inset 0 -7px 0 #4ca780; }
+    .island.one { left: 12px; top: 48px; }
+    .island.two { right: 8px; top: 24px; width: 65px; }
+    .boat { position: absolute; left: 47%; top: 29px; font-size: 30px; filter: drop-shadow(0 5px 7px rgba(0,0,0,.18)); }
+    .progress-card {
+      position: absolute;
+      left: 22px; right: 22px; bottom: 19px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 16px;
+      background: rgba(255,255,255,.14);
+      backdrop-filter: blur(8px);
+    }
+    .ring {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 700; font-size: 13px;
+      background: conic-gradient(#8af0d4 0 75%, rgba(255,255,255,.2) 75% 100%);
+      position: relative;
+    }
+    .ring::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: #256f83; }
+    .ring span { z-index: 1; }
+    .progress-copy strong { display: block; font-size: 14px; }
+    .progress-copy small { color: rgba(255,255,255,.7); }
+    .content { padding: 20px 18px; }
+    .section-row { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+    .section-row h2 { margin:0; font-size:18px; }
+    .pill { padding: 6px 10px; border-radius: 20px; background: #e9f5ff; color: #2e6faf; font-size: 12px; }
+    .task {
+      width: 100%; border: 0; text-align: left; cursor: pointer;
+      display: grid; grid-template-columns: 46px 1fr auto; gap: 12px; align-items:center;
+      padding: 15px; margin-bottom: 11px; border-radius: 18px; background: var(--card);
+      box-shadow: 0 8px 24px rgba(32, 62, 96, .07);
+    }
+    .subject { width:46px; height:46px; border-radius:15px; display:grid; place-items:center; font-weight:800; }
+    .english { color:#2e6fd4; background:#e6f0ff; }
+    .history { color:#c96d35; background:#fff0e6; }
+    .biology { color:#248f7b; background:#e4f8f2; }
+    .task strong { display:block; font-size:15px; margin-bottom:5px; }
+    .task small { color:var(--muted); font-size:12px; }
+    .status { font-size:11px; padding:5px 8px; border-radius:12px; background:#f0f3f8; color:#6e7c90; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:18px; }
+    .stat { padding:15px; border-radius:18px; background:white; box-shadow:0 8px 24px rgba(32,62,96,.06); }
+    .stat small { display:block; color:var(--muted); margin-bottom:7px; }
+    .stat strong { font-size:21px; }
+    .stat em { font-style:normal; color:var(--teal); font-size:12px; }
+    .topbar { padding: 49px 20px 18px; display:flex; align-items:center; gap:12px; background:white; border-bottom:1px solid var(--line); }
+    .back { border:0; width:36px; height:36px; border-radius:12px; background:#eef3f8; cursor:pointer; color:var(--navy); font-size:20px; }
+    .topbar h2 { margin:0; font-size:19px; }
+    .detail-body { padding:20px; }
+    .detail-card { padding:20px; border-radius:22px; background:white; box-shadow:0 10px 28px rgba(32,62,96,.08); }
+    .tag { display:inline-block; padding:5px 9px; border-radius:10px; font-size:12px; color:#2c6cc5; background:#e8f1ff; }
+    .detail-card h3 { margin:14px 0 8px; font-size:22px; }
+    .detail-card p { color:var(--muted); line-height:1.8; }
+    .deadline { padding:12px 14px; border-radius:14px; background:#fff7ed; color:#a85d2c; font-size:13px; }
+    .steps { margin:22px 0; display:flex; align-items:center; justify-content:center; color:#708096; font-size:12px; }
+    .steps b { width:7px; height:7px; margin:0 8px; border-radius:50%; background:#9eb2c8; }
+    .primary, .secondary { width:100%; border:0; border-radius:16px; padding:15px; cursor:pointer; font-weight:700; }
+    .primary { color:white; background:linear-gradient(135deg,#3478f6,#20b8a6); box-shadow:0 10px 22px rgba(52,120,246,.22); }
+    .secondary { margin-bottom:10px; color:#316ba8; background:#eaf3ff; }
+    .record-wrap { text-align:center; padding:35px 22px; }
+    .record-wrap h2 { margin:12px 0 6px; }
+    .record-wrap p { color:var(--muted); }
+    .timer { margin:48px 0 22px; font-size:38px; letter-spacing:3px; font-variant-numeric:tabular-nums; }
+    .mic { width:112px; height:112px; border:10px solid #dff6f2; border-radius:50%; background:linear-gradient(145deg,#27c3b0,#2679d8); color:white; font-size:42px; cursor:pointer; box-shadow:0 16px 35px rgba(32,184,166,.3); }
+    .mic.recording { animation:pulse 1.4s infinite; background:linear-gradient(145deg,#ff7d74,#f05a67); }
+    @keyframes pulse { 50% { box-shadow:0 0 0 18px rgba(240,90,103,.1),0 16px 35px rgba(240,90,103,.25); } }
+    .hint { margin:25px 0 34px; font-size:13px; color:var(--muted); }
+    .two-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .route-page { min-height:100%; background:linear-gradient(#eefaff,#f7f9fc); }
+    .route-head { padding:49px 20px 22px; color:white; background:linear-gradient(145deg,#15385f,#278f9d); border-radius:0 0 30px 30px; }
+    .route-head h2 { margin:0 0 7px; }
+    .route-head p { margin:0; color:rgba(255,255,255,.76); font-size:13px; }
+    .ocean-map { position:relative; min-height:430px; margin:18px; overflow:hidden; border-radius:28px; background:linear-gradient(160deg,#daf6f5,#dbeaff); box-shadow:inset 0 0 0 1px rgba(68,129,164,.08); }
+    .path { position:absolute; left:90px; top:40px; width:150px; height:330px; border-right:3px dashed rgba(42,108,154,.35); border-radius:50%; transform:rotate(10deg); }
+    .node { position:absolute; width:66px; height:66px; border-radius:22px; display:grid; place-items:center; text-align:center; background:white; color:#2c618d; font-weight:800; font-size:12px; box-shadow:0 10px 22px rgba(38,92,127,.16); border:4px solid #a6e3dc; }
+    .node.done { color:white; background:linear-gradient(145deg,#27bea9,#317bd7); border-color:white; }
+    .n1 { left:37px; top:45px; }.n2 { right:45px; top:105px; }.n3 { left:68px; top:185px; }.n4 { right:62px; top:260px; }.n5 { left:46px; top:337px; }
+    .map-boat { position:absolute; left:150px; top:170px; font-size:38px; transform:rotate(10deg); }
+    .profile-head { padding:52px 20px 32px; color:white; background:linear-gradient(145deg,#15385f,#276fa0); }
+    .avatar { width:64px; height:64px; display:grid; place-items:center; border-radius:20px; font-size:26px; background:rgba(255,255,255,.17); }
+    .profile-head h2 { margin:14px 0 6px; }.profile-head p { margin:0; color:rgba(255,255,255,.7); font-size:13px; }
+    .badges { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .badge { padding:18px; border-radius:20px; background:white; box-shadow:0 8px 24px rgba(32,62,96,.06); }
+    .badge span { font-size:25px; }.badge strong { display:block; margin-top:8px; font-size:14px; }.badge small { color:var(--muted); }
+    .nav {
+      position:absolute; z-index:15; left:12px; right:12px; bottom:10px;
+      height:70px; display:grid; grid-template-columns:repeat(3,1fr); align-items:center;
+      border:1px solid rgba(223,230,239,.9); border-radius:23px; background:rgba(255,255,255,.94); backdrop-filter:blur(12px); box-shadow:0 12px 32px rgba(31,60,95,.16);
+    }
+    .nav button { border:0; background:transparent; color:#8994a7; cursor:pointer; font-size:12px; }
+    .nav button span { display:block; margin-bottom:5px; font-size:21px; }
+    .nav button.active { color:#227aa8; font-weight:700; }
+    .toast { position:absolute; z-index:30; left:50%; bottom:96px; transform:translate(-50%,20px); padding:10px 16px; border-radius:14px; color:white; background:#17233b; font-size:13px; opacity:0; pointer-events:none; transition:.25s; white-space:nowrap; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    .cloze-text { padding: 20px; border-radius: 20px; background: white; line-height: 2.2; font-size: 16px; box-shadow: 0 10px 28px rgba(32,62,96,.08); white-space: pre-wrap; }
+    .cloze-blank { display: inline-block; min-width: 80px; margin: 0 3px; border-bottom: 2px solid #3478f6; color: transparent; text-align: center; line-height: 1.35; }
+    .cloze-text.reveal .cloze-blank { color: #286b9e; background: #eaf5ff; border-radius: 6px; border-bottom-color: transparent; }
+    .dynamic-task { display:none; }
+    .dynamic-task.show { display:grid; }
+    @media(max-width:650px){.manager-entry{right:12px;top:12px;padding:9px 11px;font-size:12px}}
+    @media (max-height:730px) { .phone { min-height:620px; height:calc(100vh - 18px); }.stage{padding:9px}.hero{min-height:250px}.ocean-map{min-height:390px}.n5{top:315px} }
+  </style>
+</head>
+<body>
+  <a class="manager-entry" href="manager.html">管理端 · 布置任务</a>
+  <main class="stage">
+    <section class="phone" aria-label="记忆航线手机端原型">
+      <div id="today" class="screen active">
+        <header class="hero">
+          <p class="eyebrow">7月23日 · 星期四</p>
+          <h1>晚上好，准备启航吧</h1>
+          <div class="estimate">今天预计学习 25 分钟</div>
+          <div class="route"><div class="route-line"></div><div class="island one"></div><div class="boat">⛵</div><div class="island two"></div></div>
+          <div class="progress-card"><div class="ring"><span>75%</span></div><div class="progress-copy"><strong>今日进度 3/4</strong><small>再完成 1 项即可抵达今日港口</small></div></div>
+        </header>
+        <div class="content">
+          <div class="section-row"><h2>今日任务</h2><span class="pill">⏰ 20:30 提醒</span></div>
+          <div id="dynamicTasks"></div>
+          <button class="task" data-open="detail"><span class="subject english">英</span><span><strong>背诵 Unit 3 课文</strong><small>预计 8 分钟 · 需要录音</small></span><span class="status">待完成</span></button>
+          <button class="task" data-toast="已进入历史复习"><span class="subject history">史</span><span><strong>复习：鸦片战争</strong><small>第 3 天复习 · 预计 5 分钟</small></span><span class="status">待复习</span></button>
+          <button class="task" data-toast="已打开抄写任务"><span class="subject biology">生</span><span><strong>抄写细胞知识点 × 2遍</strong><small>完成后拍照上传</small></span><span class="status">待完成</span></button>
+          <div class="stats"><div class="stat"><small>本周记忆率</small><strong>86%</strong> <em>↑ 4%</em></div><div class="stat"><small>连续完成</small><strong>5天</strong> <em>航行中</em></div></div>
+        </div>
+      </div>
+
+      <div id="detail" class="screen">
+        <header class="topbar"><button class="back" data-open="today">‹</button><h2>背诵任务</h2></header>
+        <div class="detail-body">
+          <div class="detail-card"><span class="tag">英语 · 背诵</span><h3>Unit 3 课文</h3><p>背诵老师布置的 Unit 3 第二段。准备好后隐藏原文，并完成一次完整录音。</p><div class="deadline">⏳ 截止时间：今天 21:30</div></div>
+          <div class="steps">查看任务<b></b>隐藏原文<b></b>录音提交</div>
+          <button class="secondary" data-toast="原文已展开">查看原文</button>
+          <button class="primary" data-open="record">开始背诵</button>
+        </div>
+      </div>
+
+      <div id="record" class="screen">
+        <header class="topbar"><button class="back" data-open="detail">‹</button><h2>背诵录音</h2></header>
+        <div class="record-wrap"><span class="tag">英语 · Unit 3</span><h2>原文已隐藏</h2><p>点击按钮开始录音，完整背诵后再次点击</p><div id="timer" class="timer">00:00</div><button id="mic" class="mic" aria-label="录音">●</button><div id="recordHint" class="hint">准备好后开始录音</div><div class="two-buttons"><button class="secondary" data-toast="录音已清空">重新录制</button><button class="primary" data-toast="录音已提交，等待检查">提交录音</button></div></div>
+      </div>
+
+      <div id="cloze" class="screen">
+        <header class="topbar"><button class="back" data-open="today">‹</button><h2 id="clozeHeading">挖空背诵</h2></header>
+        <div class="detail-body">
+          <div class="section-row"><span id="clozeSubjectTag" class="tag">历史 · 挖空背诵</span><span class="pill">预计 8 分钟</span></div>
+          <div id="clozeText" class="cloze-text">还没有发布挖空任务</div>
+          <div class="actions" style="margin-top:18px"><button id="revealCloze" class="secondary">查看答案 3秒</button><button class="primary" data-open="record">开始录音背诵</button></div>
+        </div>
+      </div>
+
+      <div id="route" class="screen route-page">
+        <header class="route-head"><h2>我的记忆航线</h2><p>本周完成 12 项 · 记忆率 86%</p></header>
+        <div class="ocean-map"><div class="path"></div><div class="node done n1">✓<br>首次</div><div class="node done n2">✓<br>1天</div><div class="node n3">3天</div><div class="map-boat">⛵</div><div class="node n4">7天</div><div class="node n5">14天</div></div>
+      </div>
+
+      <div id="profile" class="screen">
+        <header class="profile-head"><div class="avatar">🧭</div><h2>航海员 · Lv.4</h2><p>连续学习 5 天，距离下一等级还差 3 项</p></header>
+        <div class="content"><div class="section-row"><h2>科目徽章</h2><span class="pill">本周</span></div><div class="badges"><div class="badge"><span>🌊</span><strong>英语远洋</strong><small>完成 5 项</small></div><div class="badge"><span>🏛️</span><strong>历史遗迹</strong><small>完成 3 项</small></div><div class="badge"><span>🌍</span><strong>地理大陆</strong><small>完成 2 项</small></div><div class="badge"><span>🌿</span><strong>生物生态</strong><small>完成 2 项</small></div></div></div>
+      </div>
+
+      <nav class="nav"><button class="active" data-tab="today"><span>☀</span>今日</button><button data-tab="route"><span>⌁</span>航线</button><button data-tab="profile"><span>◎</span>我的</button></nav>
+      <div id="toast" class="toast"></div>
+    </section>
+  </main>
+  <script>
+    const screens = [...document.querySelectorAll('.screen')];
+    const navButtons = [...document.querySelectorAll('[data-tab]')];
+    const toast = document.querySelector('#toast');
+    const subjectMap = {历史:['史','history'],地理:['地','biology'],生物:['生','biology'],英语:['英','english']};
+    let clozeTasks=[];
+    try { clozeTasks = JSON.parse(localStorage.getItem('memoryRouteClozeTasks')) || []; } catch (_) {}
+    if (!clozeTasks.length) { try { const legacy=JSON.parse(localStorage.getItem('memoryRouteClozeTask')); if(legacy) clozeTasks=[legacy]; } catch (_) {} }
+    const escapeHtml = text => text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const dynamicTasks=document.querySelector('#dynamicTasks');
+    dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${task.answers.length} 处挖空</small></span><span class="status">新任务</span></button>`}).join('');
+    function loadClozeTask(clozeTask) {
+      if(!clozeTask)return;
+      document.querySelector('#clozeText').classList.remove('reveal');
+      document.querySelector('#clozeHeading').textContent = clozeTask.title;
+      document.querySelector('#clozeSubjectTag').textContent = `${clozeTask.subject} · 挖空背诵`;
+      document.querySelector('#clozeText').innerHTML = escapeHtml(clozeTask.content).replace(/\{\{(.*?)\}\}/gs, (_,answer) => `<span class="cloze-blank">${answer}</span>`);
+    }
+    function show(id) {
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      navButtons.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+    }
+    document.addEventListener('click', e => {
+      const open = e.target.closest('[data-open]');
+      const tab = e.target.closest('[data-tab]');
+      const tip = e.target.closest('[data-toast]');
+      if (open?.dataset.taskIndex !== undefined) loadClozeTask(clozeTasks[Number(open.dataset.taskIndex)]);
+      if (open) show(open.dataset.open);
+      if (tab) show(tab.dataset.tab);
+      if (tip) { toast.textContent = tip.dataset.toast; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
+    });
+    let seconds = 0, interval;
+    const mic = document.querySelector('#mic'), timer = document.querySelector('#timer'), hint = document.querySelector('#recordHint');
+    mic.addEventListener('click', () => {
+      if (interval) { clearInterval(interval); interval = null; mic.classList.remove('recording'); hint.textContent = '录音已完成，可以重新录制或提交'; return; }
+      mic.classList.add('recording'); hint.textContent = '正在录音，再次点击结束';
+      interval = setInterval(() => { seconds++; timer.textContent = `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`; }, 1000);
+    });
+    document.querySelector('#revealCloze').addEventListener('click', () => {
+      const box = document.querySelector('#clozeText');
+      box.classList.add('reveal');
+      document.querySelector('#revealCloze').textContent = '答案显示中…';
+      setTimeout(() => { box.classList.remove('reveal'); document.querySelector('#revealCloze').textContent = '查看答案 3秒'; }, 3000);
+    });
+  </script>
+</body>
+</html>
