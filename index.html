@@ -2,7 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#15385f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
   <title>记忆航线</title>
   <style>
     :root {
@@ -195,7 +199,9 @@
     .cloze-text.reveal .cloze-blank { color: #286b9e; background: #eaf5ff; border-radius: 6px; border-bottom-color: transparent; }
     .dynamic-task { display:none; }
     .dynamic-task.show { display:grid; }
-    @media(max-width:650px){.manager-entry{right:12px;top:12px;padding:9px 11px;font-size:12px}}
+    @media(max-width:650px){
+      body{background:#f7f9fc;overscroll-behavior:none}.stage{display:block;padding:0}.phone{width:100%;height:100dvh;min-height:100dvh;border:0;border-radius:0;box-shadow:none}.phone::before{display:none}.screen{padding-bottom:calc(92px + env(safe-area-inset-bottom))}.hero,.route-head,.topbar{padding-top:calc(48px + env(safe-area-inset-top))}.manager-entry{right:10px;top:calc(env(safe-area-inset-top) + 10px);padding:9px 11px;font-size:12px}.nav{padding-bottom:env(safe-area-inset-bottom)}
+    }
     @media (max-height:730px) { .phone { min-height:620px; height:calc(100vh - 18px); }.stage{padding:9px}.hero{min-height:250px}.ocean-map{min-height:390px}.n5{top:315px} }
   </style>
 </head>
@@ -259,17 +265,20 @@
       <div id="toast" class="toast"></div>
     </section>
   </main>
+  <script src="assets/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="cloud-sync.js"></script>
   <script>
     const screens = [...document.querySelectorAll('.screen')];
     const navButtons = [...document.querySelectorAll('[data-tab]')];
     const toast = document.querySelector('#toast');
     const subjectMap = {历史:['史','history'],地理:['地','biology'],生物:['生','biology'],英语:['英','english']};
-    let clozeTasks=[];
-    try { clozeTasks = JSON.parse(localStorage.getItem('memoryRouteClozeTasks')) || []; } catch (_) {}
-    if (!clozeTasks.length) { try { const legacy=JSON.parse(localStorage.getItem('memoryRouteClozeTask')); if(legacy) clozeTasks=[legacy]; } catch (_) {} }
-    const escapeHtml = text => text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let clozeTasks=window.MemoryRouteCloud?.getTasks() || [];
+    const escapeHtml = text => String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const dynamicTasks=document.querySelector('#dynamicTasks');
-    dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${task.answers.length} 处挖空</small></span><span class="status">新任务</span></button>`}).join('');
+    function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">新任务</span></button>`}).join('');}
+    renderCloudTasks();
+    window.MemoryRouteCloud?.subscribe(renderCloudTasks);
     function loadClozeTask(clozeTask) {
       if(!clozeTask)return;
       document.querySelector('#clozeText').classList.remove('reveal');
@@ -303,6 +312,7 @@
       document.querySelector('#revealCloze').textContent = '答案显示中…';
       setTimeout(() => { box.classList.remove('reveal'); document.querySelector('#revealCloze').textContent = '查看答案 3秒'; }, 3000);
     });
+    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
   </script>
 </body>
 </html>
