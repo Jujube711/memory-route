@@ -159,10 +159,20 @@
     .primary, .secondary { width:100%; border:0; border-radius:16px; padding:15px; cursor:pointer; font-weight:700; }
     .primary { color:white; background:linear-gradient(135deg,#3478f6,#20b8a6); box-shadow:0 10px 22px rgba(52,120,246,.22); }
     .secondary { margin-bottom:10px; color:#316ba8; background:#eaf3ff; }
-    .record-wrap { text-align:center; padding:35px 22px; }
+    .record-wrap { text-align:center; padding:22px; }
     .record-wrap h2 { margin:12px 0 6px; }
     .record-wrap p { color:var(--muted); }
-    .timer { margin:48px 0 22px; font-size:38px; letter-spacing:3px; font-variant-numeric:tabular-nums; }
+    .record-cloze { margin:16px 0; text-align:left; font-size:16px; line-height:2.15; }
+    .speech-panel { margin:14px 0; padding:15px; border-radius:18px; text-align:left; background:#eef5ff; border:1px solid #dbe8f8; }
+    .speech-panel strong { display:block; margin-bottom:8px; font-size:14px; color:#285f91; }
+    .transcript-text { width:100%; min-height:76px; resize:vertical; border:0; border-radius:12px; padding:11px; color:#33435a; background:white; font-family:inherit; font-size:14px; line-height:1.7; outline:none; }
+    .transcript-text:focus { box-shadow:0 0 0 3px rgba(52,120,246,.12); }
+    .answer-results { display:none; margin:12px 0; padding:14px; border-radius:17px; text-align:left; background:white; box-shadow:0 8px 22px rgba(32,62,96,.07); }
+    .answer-results.show { display:block; }
+    .answer-results strong { display:block; margin-bottom:9px; }
+    .answer-chip { display:flex; align-items:center; gap:8px; margin-top:7px; padding:8px 10px; border-radius:11px; font-size:13px; }
+    .answer-chip.correct { color:#20755f; background:#e6f8f1; }.answer-chip.retry { color:#a35e32; background:#fff3e7; }
+    .timer { margin:18px 0 14px; font-size:34px; letter-spacing:3px; font-variant-numeric:tabular-nums; }
     .mic { width:112px; height:112px; border:10px solid #dff6f2; border-radius:50%; background:linear-gradient(145deg,#27c3b0,#2679d8); color:white; font-size:42px; cursor:pointer; box-shadow:0 16px 35px rgba(32,184,166,.3); }
     .mic.recording { animation:pulse 1.4s infinite; background:linear-gradient(145deg,#ff7d74,#f05a67); }
     @keyframes pulse { 50% { box-shadow:0 0 0 18px rgba(240,90,103,.1),0 16px 35px rgba(240,90,103,.25); } }
@@ -238,8 +248,8 @@
       </div>
 
       <div id="record" class="screen">
-        <header class="topbar"><button class="back" data-open="detail">‹</button><h2>背诵录音</h2></header>
-        <div class="record-wrap"><span class="tag">英语 · Unit 3</span><h2>原文已隐藏</h2><p>点击按钮开始录音，完整背诵后再次点击</p><div id="timer" class="timer">00:00</div><button id="mic" class="mic" aria-label="录音">●</button><div id="recordHint" class="hint">准备好后开始录音</div><div class="two-buttons"><button class="secondary" data-toast="录音已清空">重新录制</button><button class="primary" data-toast="录音已提交，等待检查">提交录音</button></div></div>
+        <header class="topbar"><button id="recordBack" class="back" data-open="detail">‹</button><h2>录音背诵</h2></header>
+        <div class="record-wrap"><span id="recordTag" class="tag">英语 · Unit 3</span><h2 id="recordTitle">看着提示完成背诵</h2><div id="recordClozeText" class="cloze-text record-cloze">请根据任务要求完成背诵</div><p>点击麦克风后开始背诵，系统会免费转成文字并检查挖空答案</p><div class="speech-panel"><strong>AI 语音转文字</strong><textarea id="transcriptText" class="transcript-text" placeholder="识别结果会实时显示在这里，也可以手动修正识别错字"></textarea></div><div id="answerResults" class="answer-results"></div><div id="timer" class="timer">00:00</div><button id="mic" class="mic" aria-label="开始语音识别">●</button><div id="recordHint" class="hint">准备好后开始语音识别</div><div class="two-buttons"><button id="resetRecording" class="secondary">重新录制</button><button id="submitRecitation" class="primary">AI 检查答案</button></div></div>
       </div>
 
       <div id="cloze" class="screen">
@@ -273,7 +283,7 @@
     const navButtons = [...document.querySelectorAll('[data-tab]')];
     const toast = document.querySelector('#toast');
     const subjectMap = {历史:['史','history'],地理:['地','biology'],生物:['生','biology'],英语:['英','english']};
-    let clozeTasks=window.MemoryRouteCloud?.getTasks() || [];
+    let clozeTasks=window.MemoryRouteCloud?.getTasks() || [], activeClozeTask=null, recordingTask=null;
     const escapeHtml = text => String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const dynamicTasks=document.querySelector('#dynamicTasks');
     function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">新任务</span></button>`}).join('');}
@@ -281,10 +291,20 @@
     window.MemoryRouteCloud?.subscribe(renderCloudTasks);
     function loadClozeTask(clozeTask) {
       if(!clozeTask)return;
+      activeClozeTask=clozeTask;
       document.querySelector('#clozeText').classList.remove('reveal');
       document.querySelector('#clozeHeading').textContent = clozeTask.title;
       document.querySelector('#clozeSubjectTag').textContent = `${clozeTask.subject} · 挖空背诵`;
       document.querySelector('#clozeText').innerHTML = escapeHtml(clozeTask.content).replace(/\{\{(.*?)\}\}/gs, (_,answer) => `<span class="cloze-blank">${answer}</span>`);
+    }
+    function prepareRecording(task) {
+      const fromCloze=Boolean(task);
+      recordingTask=task||null;
+      document.querySelector('#recordBack').dataset.open=fromCloze?'cloze':'detail';
+      document.querySelector('#recordTag').textContent=fromCloze?`${task.subject} · 挖空背诵`:'英语 · Unit 3';
+      document.querySelector('#recordTitle').textContent=fromCloze?task.title:'看着提示完成背诵';
+      document.querySelector('#recordClozeText').innerHTML=fromCloze?escapeHtml(task.content).replace(/\{\{(.*?)\}\}/gs,(_,answer)=>`<span class="cloze-blank">${answer}</span>`):'请根据任务要求完成完整背诵。';
+      resetRecording();
     }
     function show(id) {
       screens.forEach(s => s.classList.toggle('active', s.id === id));
@@ -295,17 +315,38 @@
       const tab = e.target.closest('[data-tab]');
       const tip = e.target.closest('[data-toast]');
       if (open?.dataset.taskIndex !== undefined) loadClozeTask(clozeTasks[Number(open.dataset.taskIndex)]);
+      if (open?.dataset.open === 'record') prepareRecording(open.closest('#cloze')?activeClozeTask:null);
       if (open) show(open.dataset.open);
       if (tab) show(tab.dataset.tab);
       if (tip) { toast.textContent = tip.dataset.toast; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     });
-    let seconds = 0, interval;
-    const mic = document.querySelector('#mic'), timer = document.querySelector('#timer'), hint = document.querySelector('#recordHint');
-    mic.addEventListener('click', () => {
-      if (interval) { clearInterval(interval); interval = null; mic.classList.remove('recording'); hint.textContent = '录音已完成，可以重新录制或提交'; return; }
-      mic.classList.add('recording'); hint.textContent = '正在录音，再次点击结束';
-      interval = setInterval(() => { seconds++; timer.textContent = `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`; }, 1000);
-    });
+    let seconds=0,interval,recognition,recognizing=false,finalTranscript='';
+    const mic=document.querySelector('#mic'),timer=document.querySelector('#timer'),hint=document.querySelector('#recordHint'),transcript=document.querySelector('#transcriptText'),answerResults=document.querySelector('#answerResults');
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    function ensureRecognition(){
+      if(!SpeechRecognition)return null;
+      if(recognition)return recognition;
+      recognition=new SpeechRecognition();recognition.continuous=true;recognition.interimResults=true;
+      recognition.onresult=event=>{let interim='';for(let i=event.resultIndex;i<event.results.length;i++){const text=event.results[i][0].transcript;if(event.results[i].isFinal)finalTranscript+=text;else interim+=text;}transcript.value=(finalTranscript+interim).trim();};
+      recognition.onerror=event=>{hint.textContent=event.error==='not-allowed'?'请允许浏览器使用麦克风后重试':'语音识别暂时不可用，可以手动填写转写文字';stopRecording(false);};
+      recognition.onend=()=>{if(recognizing)stopRecording(false);};
+      return recognition;
+    }
+    function startRecording(){
+      const engine=ensureRecognition();if(!engine){hint.textContent='当前浏览器不支持免费语音识别，请使用安卓 Chrome 或手动填写转写文字';return;}
+      finalTranscript='';transcript.value='';answerResults.classList.remove('show');answerResults.innerHTML='';seconds=0;timer.textContent='00:00';engine.lang=recordingTask?.subject==='英语'?'en-US':'zh-CN';recognizing=true;mic.classList.add('recording');mic.setAttribute('aria-label','结束语音识别');hint.textContent='正在识别，再次点击结束';interval=setInterval(()=>{seconds++;timer.textContent=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;},1000);try{engine.start();}catch(_){stopRecording(false);}
+    }
+    function stopRecording(stopEngine=true){recognizing=false;if(interval){clearInterval(interval);interval=null;}mic.classList.remove('recording');mic.setAttribute('aria-label','开始语音识别');hint.textContent=transcript.value.trim()?'识别完成，可以修正文字或让 AI 检查答案':'识别已结束，可以重新录制';if(stopEngine&&recognition){try{recognition.stop();}catch(_){}}}
+    function resetRecording(){stopRecording();seconds=0;finalTranscript='';timer.textContent='00:00';transcript.value='';answerResults.classList.remove('show');answerResults.innerHTML='';hint.textContent='准备好后开始语音识别';}
+    function parseChineseNumber(token){const digits={零:0,〇:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};const units={十:10,百:100,千:1000,万:10000};if(!/[十百千万]/.test(token))return [...token].map(char=>digits[char]).join('');let total=0,section=0,number=0;for(const char of token){if(char in digits){number=digits[char];continue;}const unit=units[char];if(unit===10000){section=(section+number)*unit;total+=section;section=0;number=0;}else{if(number===0)number=1;section+=number*unit;number=0;}}return String(total+section+number);}
+    function normalizeSpeech(value){return String(value||'').toLowerCase().replace(/[零〇一二两三四五六七八九十百千万]+/g,parseChineseNumber).replace(/[^a-z0-9\u4e00-\u9fff]/g,'');}
+    function similarity(a,b){const rows=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)rows[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)rows[i][j]=Math.min(rows[i-1][j]+1,rows[i][j-1]+1,rows[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return 1-rows[a.length][b.length]/Math.max(a.length,b.length,1);}
+    function answerMatched(answer,spoken){const expected=normalizeSpeech(answer),heard=normalizeSpeech(spoken);if(!expected)return false;if(heard.includes(expected))return true;if(expected.length<=2)return false;let best=0;for(let size=Math.max(2,expected.length-2);size<=Math.min(heard.length,expected.length+2);size++)for(let start=0;start+size<=heard.length;start++)best=Math.max(best,similarity(expected,heard.slice(start,start+size)));return best>=(expected.length<=4?0.8:0.72);}
+    function evaluateRecitation(){const spoken=transcript.value.trim();if(!spoken){hint.textContent='请先完成语音识别，或在转写框中填写背诵内容';return;}const answers=recordingTask?.answers||[];if(!answers.length){answerResults.innerHTML='<strong>转写已完成</strong><div class="answer-chip correct">✓ 已记录本次背诵内容</div>';answerResults.classList.add('show');return;}const checks=answers.map(answer=>({answer,correct:answerMatched(answer,spoken)}));const correct=checks.filter(item=>item.correct).length;answerResults.innerHTML=`<strong>AI 检查：${correct}/${checks.length} 个挖空正确</strong>${checks.map((item,index)=>`<div class="answer-chip ${item.correct?'correct':'retry'}">${item.correct?'✓':'↻'} 第 ${index+1} 空：${escapeHtml(item.answer)} · ${item.correct?'正确':'需要再练'}</div>`).join('')}`;answerResults.classList.add('show');hint.textContent=correct===checks.length?'太棒了，所有挖空都背对了！':'可以看看需要再练的空，然后重新录制';}
+    mic.addEventListener('click',()=>recognizing?stopRecording():startRecording());
+    transcript.addEventListener('input',()=>answerResults.classList.remove('show'));
+    document.querySelector('#resetRecording').addEventListener('click',resetRecording);
+    document.querySelector('#submitRecitation').addEventListener('click',evaluateRecitation);
     document.querySelector('#revealCloze').addEventListener('click', () => {
       const box = document.querySelector('#clozeText');
       box.classList.add('reveal');
