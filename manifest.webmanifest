@@ -1,0 +1,14 @@
+{
+  "name": "记忆航线",
+  "short_name": "记忆航线",
+  "description": "英语与副科学习任务、挖空背诵和科学复习提醒",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#15385f",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "assets/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

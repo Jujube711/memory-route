@@ -2,7 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#15385f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
   <title>记忆航线 · 布置挖空背诵</title>
   <style>
     :root { --navy:#123252; --blue:#3478f6; --teal:#1db6a3; --bg:#f3f7fb; --ink:#18243b; --muted:#718096; --line:#dfe7f1; }
@@ -10,7 +14,7 @@
     button,input,textarea,select{font:inherit}.shell{max-width:1120px;margin:auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;color:white;background:linear-gradient(145deg,var(--blue),var(--teal));font-size:22px}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.child-link{text-decoration:none;color:#2868a5;background:white;border:1px solid var(--line);padding:10px 14px;border-radius:13px}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.step{padding:12px;border-radius:14px;text-align:center;background:rgba(255,255,255,.65);color:var(--muted);font-size:13px}.step.active{color:white;background:linear-gradient(135deg,#2d75d7,#20aa9e);box-shadow:0 8px 20px rgba(45,117,215,.18)}
     .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.panel{background:rgba(255,255,255,.95);border:1px solid rgba(221,230,240,.8);border-radius:24px;padding:22px;box-shadow:0 16px 45px rgba(41,72,108,.08)}.panel h2{font-size:18px;margin:0 0 16px}.label{display:block;font-size:13px;font-weight:700;margin:15px 0 8px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}input[type=text],select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);background:#fbfcfe;outline:none}textarea{min-height:210px;resize:vertical;line-height:1.8}input:focus,textarea:focus,select:focus{border-color:#68a2e4;box-shadow:0 0 0 3px rgba(52,120,246,.1)}
     .upload{position:relative;display:grid;place-items:center;min-height:150px;border:2px dashed #bed0e3;border-radius:18px;background:#f8fbfe;overflow:hidden;text-align:center;padding:15px}.upload input{position:absolute;inset:0;opacity:0;cursor:pointer}.upload img{display:none;max-height:180px;max-width:100%;border-radius:12px}.upload strong{display:block;margin-bottom:5px}.upload small{color:var(--muted)}.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.primary,.secondary,.danger{border:0;border-radius:14px;padding:12px 16px;cursor:pointer;font-weight:700}.primary{color:white;background:linear-gradient(135deg,var(--blue),var(--teal));box-shadow:0 9px 20px rgba(52,120,246,.18)}.secondary{color:#2b679e;background:#eaf3ff}.danger{color:#ae5b51;background:#fff0ee}.primary:disabled{opacity:.55;cursor:not-allowed}.tip{margin-top:9px;color:var(--muted);font-size:12px;line-height:1.6}.editor-note{padding:10px 12px;border-radius:12px;background:#fff8eb;color:#95602c;font-size:12px}.preview{min-height:310px;padding:22px;border-radius:20px;color:#26344a;background:linear-gradient(155deg,#effbfa,#eef4ff);line-height:2;font-size:16px;white-space:pre-wrap}.blank{display:inline-block;min-width:74px;margin:0 3px;border-bottom:2px solid #346f9f;color:transparent;text-align:center;line-height:1.35}.preview.show-answer .blank{color:#286b9e;background:rgba(255,255,255,.7);border-radius:6px;border-bottom-color:transparent}.answer-box{margin-top:14px;padding:14px;border-radius:15px;background:#f7f9fc;color:var(--muted);font-size:13px}.empty{color:#8b97a8;text-align:center;padding-top:80px}.status{min-height:20px;margin-top:10px;color:#278678;font-size:13px}.saved{display:none;margin-top:14px;padding:13px;border-radius:14px;color:#26745e;background:#e7f8f1}.saved.show{display:block}.task-list{display:grid;gap:10px}.saved-task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:15px;background:#fbfcfe}.saved-task .subject-dot{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:white;background:linear-gradient(145deg,#3478f6,#20b8a6);font-size:12px}.saved-task strong{display:block;font-size:14px;margin-bottom:4px}.saved-task small{color:var(--muted)}.saved-task button{border:0;border-radius:10px;padding:7px 9px;color:#a25d55;background:#fff0ee;cursor:pointer}.list-empty{padding:18px;text-align:center;color:var(--muted);background:#f7f9fc;border-radius:14px;font-size:13px}
-    @media(max-width:780px){.grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.top{align-items:flex-start}.child-link{font-size:12px}.panel{padding:17px}}
+    @media(max-width:780px){body{padding-top:env(safe-area-inset-top)}.shell{padding:72px 12px calc(38px + env(safe-area-inset-bottom))}.grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.top{align-items:flex-start}.child-link{font-size:12px}.panel{padding:17px;border-radius:19px}.upload{min-height:128px}.primary,.secondary,.danger{min-height:44px}.saved-task{grid-template-columns:auto minmax(0,1fr) auto}.saved-task strong,.saved-task small{overflow-wrap:anywhere}}
   </style>
 </head>
 <body>
@@ -50,12 +54,14 @@
     <article class="panel" style="margin-top:18px"><div class="top" style="margin:0 0 16px"><div><h2 style="margin:0">已发布的挖空任务</h2><p style="margin:5px 0 0;color:var(--muted);font-size:12px">孩子端会按这里的任务顺序显示</p></div><span id="taskCount" class="step active" style="padding:8px 12px">0 项</span></div><div id="taskList" class="task-list"></div></article>
   </main>
   <script src="assets/tesseract/tesseract.min.js"></script>
+  <script src="assets/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="cloud-sync.js"></script>
   <script>
     const $ = s => document.querySelector(s);
     const source = $('#sourceText'), editor = $('#clozeEditor'), preview = $('#preview'), answerBox = $('#answerBox');
     let imageData = '', history = [], showing = false, ocrWorker;
-    const getTasks=()=>{try{return JSON.parse(localStorage.getItem('memoryRouteClozeTasks'))||[]}catch(_){return[]}};
-    const setTasks=tasks=>localStorage.setItem('memoryRouteClozeTasks',JSON.stringify(tasks));
+    const getTasks=()=>window.MemoryRouteCloud?.getTasks() || [];
     $('#imageInput').addEventListener('change', event => {
       const file = event.target.files[0]; if (!file) return;
       const reader = new FileReader();
@@ -91,14 +97,16 @@
     $('#blankSelection').addEventListener('click',()=>{const start=editor.selectionStart,end=editor.selectionEnd;if(start===end){alert('请先在文字中选中要挖空的答案。');return;}const value=editor.value, selected=value.slice(start,end);if(selected.includes('{{')||selected.includes('}}')){alert('请不要重复选择已经挖空的内容。');return;}history.push(value);editor.value=value.slice(0,start)+'{{'+selected+'}}'+value.slice(end);editor.focus();editor.setSelectionRange(start,start+selected.length+4);updatePreview();});
     $('#undoBlank').addEventListener('click',()=>{if(!history.length)return;editor.value=history.pop();updatePreview();});
     editor.addEventListener('input',updatePreview); source.addEventListener('input',()=>{if(!editor.value.trim()){editor.value=source.value;updatePreview();}});
-    function escapeHtml(text){return text.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function escapeHtml(text){return String(text ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
     function parse(){const answers=[];const safe=escapeHtml(editor.value.trim());const html=safe.replace(/\{\{(.*?)\}\}/gs,(_,answer)=>{answers.push(answer);const width=Math.max(74,Math.min(160,answer.length*18));return `<span class="blank" style="min-width:${width}px">${answer}</span>`;});return{answers,html};}
     function updatePreview(){const {answers,html}=parse();preview.innerHTML=html||'<div class="empty">完成挖空后，这里会显示孩子看到的内容</div>';preview.classList.toggle('show-answer',showing);answerBox.textContent=answers.length?'答案：'+answers.map((a,i)=>`${i+1}. ${a}`).join('　'):'答案：暂无';$('#saved').classList.remove('show');}
     $('#toggleAnswer').addEventListener('click',()=>{showing=!showing;preview.classList.toggle('show-answer',showing);$('#toggleAnswer').textContent=showing?'隐藏答案':'临时显示答案';});
     function renderTasks(){const tasks=getTasks();$('#taskCount').textContent=`${tasks.length} 项`;$('#taskList').innerHTML=tasks.length?tasks.map(task=>`<div class="saved-task"><span class="subject-dot">${escapeHtml(task.subject)}</span><span><strong>${escapeHtml(task.title)}</strong><small>${task.answers.length} 处挖空 · ${new Date(task.createdAt).toLocaleDateString('zh-CN')}</small></span><button data-delete="${task.id}">删除</button></div>`).join(''):'<div class="list-empty">还没有发布任务，完成第一篇教材挖空后会显示在这里。</div>';}
-    $('#taskList').addEventListener('click',event=>{const button=event.target.closest('[data-delete]');if(!button)return;setTasks(getTasks().filter(task=>task.id!==button.dataset.delete));renderTasks();});
-    $('#saveTask').addEventListener('click',()=>{const {answers}=parse();if(!editor.value.trim()||!answers.length){alert('请先填写原文，并至少挖空一处。');return;}const task={id:`task-${Date.now()}`,subject:$('#subject').value,title:$('#title').value.trim()||'挖空背诵任务',content:editor.value,answers,createdAt:new Date().toISOString()};const tasks=getTasks();tasks.unshift(task);setTasks(tasks);localStorage.setItem('memoryRouteClozeTask',JSON.stringify(task));$('#saved').classList.add('show');renderTasks();});
+    $('#taskList').addEventListener('click',async event=>{const button=event.target.closest('[data-delete]');if(!button)return;try{await window.MemoryRouteCloud.deleteTask(button.dataset.delete);renderTasks();}catch(error){alert(`云端删除失败：${error.message}`);}});
+    $('#saveTask').addEventListener('click',async()=>{const {answers}=parse();if(!editor.value.trim()||!answers.length){alert('请先填写原文，并至少挖空一处。');return;}const button=$('#saveTask');const task={id:crypto.randomUUID?crypto.randomUUID():`task-${Date.now()}`,subject:$('#subject').value,title:$('#title').value.trim()||'挖空背诵任务',content:editor.value,answers,createdAt:new Date().toISOString()};button.disabled=true;button.textContent='正在保存…';try{await window.MemoryRouteCloud.saveTask(task);$('#saved').classList.add('show');renderTasks();}catch(error){alert(`云端保存失败，本机内容仍保留：${error.message}`);}finally{button.disabled=false;button.textContent='保存并发布任务';}});
+    window.MemoryRouteCloud?.subscribe(renderTasks);
     renderTasks();
+    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
   </script>
 </body>
 </html>
