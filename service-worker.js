@@ -1,5 +1,5 @@
-const CACHE = 'memory-route-v3';
-const SHELL = ['./', './index.html', './manager.html', './config.js', './cloud-sync.js', './manifest.webmanifest', './assets/app-icon.svg', './assets/supabase.min.js'];
+const CACHE = 'memory-route-v4';
+const SHELL = ['./', './index.html', './manager.html', './config.js', './cloud-sync.js', './manifest.webmanifest', './assets/app-icon.svg', './assets/app-icon-192.png', './assets/app-icon-512.png', './assets/app-icon-maskable-512.png', './assets/apple-touch-icon.png', './assets/supabase.min.js'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
