@@ -49,7 +49,7 @@
           <div id="preview" class="preview"><div class="empty">完成挖空后，这里会显示孩子看到的内容</div></div>
           <div class="actions"><button class="secondary" id="toggleAnswer">临时显示答案</button><button class="primary" id="saveTask">保存并发布任务</button></div>
           <div id="answerBox" class="answer-box">答案：暂无</div>
-          <div id="saved" class="saved">任务已保存。孩子端首页会显示这条挖空背诵任务。</div>
+          <div id="saved" class="saved">任务已在线保存，孩子端会自动同步显示。</div>
         </article>
       </aside>
     </section>
@@ -104,8 +104,8 @@
     function updatePreview(){const {answers,html}=parse();preview.innerHTML=html||'<div class="empty">完成挖空后，这里会显示孩子看到的内容</div>';preview.classList.toggle('show-answer',showing);answerBox.textContent=answers.length?'答案：'+answers.map((a,i)=>`${i+1}. ${a}`).join('　'):'答案：暂无';$('#saved').classList.remove('show');}
     $('#toggleAnswer').addEventListener('click',()=>{showing=!showing;preview.classList.toggle('show-answer',showing);$('#toggleAnswer').textContent=showing?'隐藏答案':'临时显示答案';});
     function renderTasks(){const tasks=getTasks();$('#taskCount').textContent=`${tasks.length} 项`;$('#taskList').innerHTML=tasks.length?tasks.map(task=>`<div class="saved-task"><span class="subject-dot">${escapeHtml(task.subject)}</span><span><strong>${escapeHtml(task.title)}</strong><small>${task.answers.length} 处挖空 · ${new Date(task.createdAt).toLocaleDateString('zh-CN')}</small></span><button data-delete="${task.id}">删除</button></div>`).join(''):'<div class="list-empty">还没有发布任务，完成第一篇教材挖空后会显示在这里。</div>';}
-    $('#taskList').addEventListener('click',async event=>{const button=event.target.closest('[data-delete]');if(!button)return;try{await window.MemoryRouteCloud.deleteTask(button.dataset.delete);renderTasks();}catch(error){alert(`云端删除失败：${error.message}`);}});
-    $('#saveTask').addEventListener('click',async()=>{const {answers}=parse();if(!editor.value.trim()||!answers.length){alert('请先填写原文，并至少挖空一处。');return;}const button=$('#saveTask');const task={id:crypto.randomUUID?crypto.randomUUID():`task-${Date.now()}`,subject:$('#subject').value,title:$('#title').value.trim()||'挖空背诵任务',content:editor.value,answers,createdAt:new Date().toISOString()};button.disabled=true;button.textContent='正在保存…';try{await window.MemoryRouteCloud.saveTask(task);$('#saved').classList.add('show');renderTasks();}catch(error){alert(`云端保存失败，本机内容仍保留：${error.message}`);}finally{button.disabled=false;button.textContent='保存并发布任务';}});
+    $('#taskList').addEventListener('click',async event=>{const button=event.target.closest('[data-delete]');if(!button)return;try{await window.MemoryRouteCloud.deleteTask(button.dataset.delete);renderTasks();}catch(error){alert(`在线删除失败：${error.message}`);}});
+    $('#saveTask').addEventListener('click',async()=>{const {answers}=parse();if(!editor.value.trim()||!answers.length){alert('请先填写原文，并至少挖空一处。');return;}const button=$('#saveTask');const task={id:crypto.randomUUID?crypto.randomUUID():`task-${Date.now()}`,subject:$('#subject').value,title:$('#title').value.trim()||'挖空背诵任务',content:editor.value,answers,createdAt:new Date().toISOString()};button.disabled=true;button.textContent='正在保存…';try{await window.MemoryRouteCloud.saveTask(task);$('#saved').classList.add('show');renderTasks();}catch(error){alert(`在线保存失败：${error.message}`);}finally{button.disabled=false;button.textContent='保存并发布任务';}});
     window.MemoryRouteCloud?.subscribe(renderTasks);
     renderTasks();
     if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
