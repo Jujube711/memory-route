@@ -195,12 +195,23 @@
     .node.done { color:white; background:linear-gradient(145deg,#27bea9,#317bd7); border-color:white; }
     .n1 { left:37px; top:45px; }.n2 { right:45px; top:105px; }.n3 { left:68px; top:185px; }.n4 { right:62px; top:260px; }.n5 { left:46px; top:337px; }
     .map-boat { position:absolute; left:150px; top:170px; font-size:38px; transform:rotate(10deg); }
-    .profile-head { padding:52px 20px 32px; color:white; background:linear-gradient(145deg,#15385f,#276fa0); }
-    .avatar { width:64px; height:64px; display:grid; place-items:center; border-radius:20px; font-size:26px; background:rgba(255,255,255,.17); }
-    .profile-head h2 { margin:14px 0 6px; }.profile-head p { margin:0; color:rgba(255,255,255,.7); font-size:13px; }
-    .badges { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .badge { padding:18px; border-radius:20px; background:white; box-shadow:0 8px 24px rgba(32,62,96,.06); }
-    .badge span { font-size:25px; }.badge strong { display:block; margin-top:8px; font-size:14px; }.badge small { color:var(--muted); }
+    .profile-head { padding:52px 20px 27px; color:white; background:linear-gradient(145deg,#15385f,#276fa0); border-radius:0 0 30px 30px; }
+    .profile-head h2 { margin:0 0 7px; }.profile-head p { margin:0; color:rgba(255,255,255,.76); font-size:13px; line-height:1.6; }
+    .status-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .status-card { min-width:0; padding:16px; border-radius:20px; background:white; box-shadow:0 8px 24px rgba(32,62,96,.06); }
+    .status-card span { display:block; margin-bottom:8px; color:var(--muted); font-size:12px; }
+    .status-card strong { display:block; font-size:18px; color:#203c5c; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .status-dot { display:inline-block!important; width:8px; height:8px; margin:0 6px 1px 0!important; border-radius:50%; background:#20b8a6; }
+    .status-dot.offline { background:#f39a62; }
+    .setting-card { margin-top:14px; padding:18px; border-radius:20px; background:white; box-shadow:0 8px 24px rgba(32,62,96,.06); }
+    .setting-card h3 { margin:0 0 7px; font-size:16px; color:#203c5c; }
+    .setting-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.65; }
+    .setting-link { display:flex; align-items:center; justify-content:space-between; gap:14px; color:inherit; text-decoration:none; }
+    .setting-link .setting-icon { flex:0 0 46px; width:46px; height:46px; display:grid; place-items:center; border-radius:15px; color:white; background:linear-gradient(145deg,#3478f6,#20b8a6); font-size:22px; }
+    .setting-link .setting-copy { flex:1; min-width:0; }
+    .setting-link .setting-copy h3 { margin-bottom:4px; }
+    .setting-link .setting-arrow { color:#91a1b5; font-size:24px; }
+    .usage-list { margin:10px 0 0; padding-left:20px; color:#607389; font-size:13px; line-height:1.8; }
     .install-card { margin-top:18px; padding:18px; border-radius:20px; color:#174767; background:linear-gradient(145deg,#e4f8f4,#e8f1ff); border:1px solid #d5e9ef; }
     .install-card strong { display:block; margin-bottom:6px; font-size:16px; }
     .install-card p { margin:0 0 12px; color:#5e7186; font-size:13px; line-height:1.6; }
@@ -274,16 +285,24 @@
       </div>
 
       <div id="route" class="screen route-page">
-        <header class="route-head"><h2>我的记忆航线</h2><p>本周完成 12 项 · 记忆率 86%</p></header>
-        <div class="ocean-map"><div class="path"></div><div class="node done n1">✓<br>首次</div><div class="node done n2">✓<br>1天</div><div class="node n3">3天</div><div class="map-boat">⛵</div><div class="node n4">7天</div><div class="node n5">14天</div></div>
+        <header class="route-head"><h2>记忆航线</h2><p>按首次、1 天、3 天、7 天和 14 天的节奏复习</p></header>
+        <div class="ocean-map"><div class="path"></div><div class="node n1">首次</div><div class="node n2">1天</div><div class="node n3">3天</div><div class="map-boat">⛵</div><div class="node n4">7天</div><div class="node n5">14天</div></div>
       </div>
 
       <div id="profile" class="screen">
-        <header class="profile-head"><div class="avatar">🧭</div><h2>航海员 · Lv.4</h2><p>连续学习 5 天，距离下一等级还差 3 项</p></header>
-        <div class="content"><div class="section-row"><h2>科目徽章</h2><span class="pill">本周</span></div><div class="badges"><div class="badge"><span>🌊</span><strong>英语远洋</strong><small>完成 5 项</small></div><div class="badge"><span>🏛️</span><strong>历史遗迹</strong><small>完成 3 项</small></div><div class="badge"><span>🌍</span><strong>地理大陆</strong><small>完成 2 项</small></div><div class="badge"><span>🌿</span><strong>生物生态</strong><small>完成 2 项</small></div></div><div id="installCard" class="install-card"><strong>安装到安卓手机</strong><p>安装后可以像普通 App 一样从桌面打开，并使用全屏体验。</p><button id="installApp" class="primary">安装记忆航线</button></div></div>
+        <header class="profile-head"><h2>设置</h2><p>查看同步状态、管理学习任务，或把记忆航线安装到手机。</p></header>
+        <div class="content">
+          <div class="status-grid">
+            <div class="status-card"><span>在线任务</span><strong><b id="profileTaskCount">0</b> 项</strong></div>
+            <div class="status-card"><span>网络状态</span><strong><i id="networkDot" class="status-dot"></i><b id="networkStatus">在线</b></strong></div>
+          </div>
+          <div class="setting-card"><a class="setting-link" href="manager.html"><span class="setting-icon">⚙</span><span class="setting-copy"><h3>管理学习任务</h3><p>发布、修改或删除任务，进入时需要家庭通行码。</p></span><span class="setting-arrow">›</span></a></div>
+          <div id="installCard" class="install-card"><strong>安装到安卓手机</strong><p>安装后可以像普通 App 一样从桌面打开，并使用全屏体验。</p><button id="installApp" class="primary">安装记忆航线</button></div>
+          <div class="setting-card"><h3>使用说明</h3><ul class="usage-list"><li>孩子直接在“今日”查看和完成在线任务。</li><li>家长从上方管理入口布置任务。</li><li>任务通过网络同步，多台设备可看到同一内容。</li></ul></div>
+        </div>
       </div>
 
-      <nav class="nav"><button class="active" data-tab="today"><span>☀</span>今日</button><button data-tab="route"><span>⌁</span>航线</button><button data-tab="profile"><span>◎</span>我的</button></nav>
+      <nav class="nav"><button class="active" data-tab="today"><span>☀</span>今日</button><button data-tab="route"><span>⌁</span>航线</button><button data-tab="profile"><span>◎</span>设置</button></nav>
       <div id="toast" class="toast"></div>
     </section>
   </main>
@@ -297,9 +316,9 @@
     const subjectMap = {历史:['史','history'],地理:['地','biology'],生物:['生','biology'],英语:['英','english']};
     let clozeTasks=window.MemoryRouteCloud?.getTasks() || [], activeClozeTask=null, recordingTask=null;
     const escapeHtml = text => String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const dynamicTasks=document.querySelector('#dynamicTasks'),emptyTasks=document.querySelector('#emptyTasks'),taskSummary=document.querySelector('#taskSummary');
+    const dynamicTasks=document.querySelector('#dynamicTasks'),emptyTasks=document.querySelector('#emptyTasks'),taskSummary=document.querySelector('#taskSummary'),profileTaskCount=document.querySelector('#profileTaskCount');
     document.querySelector('#todayDate').textContent=new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'long'}).format(new Date());
-    function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">待学习</span></button>`}).join('');emptyTasks.hidden=clozeTasks.length>0;taskSummary.textContent=clozeTasks.length?`今天有 ${clozeTasks.length} 项学习任务`:'今天没有待完成任务';}
+    function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">待学习</span></button>`}).join('');emptyTasks.hidden=clozeTasks.length>0;taskSummary.textContent=clozeTasks.length?`今天有 ${clozeTasks.length} 项学习任务`:'今天没有待完成任务';profileTaskCount.textContent=clozeTasks.length;}
     renderCloudTasks();
     window.MemoryRouteCloud?.subscribe(renderCloudTasks);
     function loadClozeTask(clozeTask) {
@@ -373,6 +392,9 @@
     window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;installCard.hidden=false;});
     installButton.addEventListener('click',async()=>{if(!deferredInstallPrompt){toast.textContent='请用安卓 Chrome 菜单选择“添加到主屏幕”';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2600);return;}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installCard.hidden=true;});
     window.addEventListener('appinstalled',()=>{installCard.hidden=true;toast.textContent='记忆航线已安装到手机';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200);});
+    const networkStatus=document.querySelector('#networkStatus'),networkDot=document.querySelector('#networkDot');
+    function updateNetworkStatus(){const online=navigator.onLine;networkStatus.textContent=online?'在线':'离线';networkDot.classList.toggle('offline',!online);}
+    updateNetworkStatus();window.addEventListener('online',updateNetworkStatus);window.addEventListener('offline',updateNetworkStatus);
     if(window.visualViewport){const updateKeyboardState=()=>document.querySelector('.phone').classList.toggle('keyboard-open',window.visualViewport.height<window.innerHeight*0.72);window.visualViewport.addEventListener('resize',updateKeyboardState);window.visualViewport.addEventListener('scroll',updateKeyboardState);}
     if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
   </script>
