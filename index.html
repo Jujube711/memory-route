@@ -25,11 +25,12 @@
       --line: #e8edf5;
     }
     * { box-sizing: border-box; }
-    html { min-height: 100%; background: #f7f9fc; }
+    html { min-height: 100%; overflow-x:hidden; background: #f7f9fc; }
     body {
       margin: 0;
       min-height: 100vh;
       min-height: 100dvh;
+      overflow-x: hidden;
       color: var(--ink);
       font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
       background:
@@ -237,8 +238,12 @@
     .empty-tasks strong { display:block; margin-bottom:7px; font-size:17px; }
     .empty-tasks p { margin:0; color:var(--muted); font-size:13px; line-height:1.7; }
     @media(max-width:650px){
-      body{background:#f7f9fc;overscroll-behavior:none}.stage{display:block;padding:0}.phone{width:100%;height:100vh;height:100dvh;min-height:100vh;min-height:100dvh;border:0;border-radius:0;box-shadow:none}.phone::before{display:none}.screen{padding-bottom:calc(100px + env(safe-area-inset-bottom))}.hero,.route-head,.topbar{padding-top:calc(48px + env(safe-area-inset-top))}.manager-entry{min-height:44px;display:flex;align-items:center;right:10px;top:calc(env(safe-area-inset-top) + 8px);padding:8px 11px;font-size:12px}.nav{bottom:0;left:0;right:0;height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);border-radius:22px 22px 0 0}.toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center}.phone.keyboard-open .nav{display:none}.phone.keyboard-open .screen{padding-bottom:18px}
+      body{background:#f7f9fc;overscroll-behavior:none}.stage{display:block;padding:0}.phone{width:100%;height:100vh;height:100dvh;min-height:100vh;min-height:100dvh;border:0;border-radius:0;box-shadow:none}.phone::before{display:none}.screen{padding-bottom:calc(104px + env(safe-area-inset-bottom));scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}.hero,.route-head,.topbar,.profile-head{padding-top:calc(48px + env(safe-area-inset-top))}.manager-entry{min-height:44px;display:flex;align-items:center;right:10px;top:calc(env(safe-area-inset-top) + 8px);padding:8px 11px;font-size:12px}.nav{position:fixed;bottom:0;left:0;right:0;height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);border-radius:22px 22px 0 0}.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px);white-space:normal;text-align:center}.phone.keyboard-open .nav{display:none}.phone.keyboard-open .screen{padding-bottom:18px}
     }
+    @media(max-width:380px){
+      .manager-entry{font-size:0;padding:8px 13px}.manager-entry::before{content:'管理';font-size:12px}.hero{padding-left:18px;padding-right:18px}.content,.detail-body,.record-wrap{padding-left:14px;padding-right:14px}.task{grid-template-columns:42px minmax(0,1fr);gap:10px;padding:13px}.subject{width:42px;height:42px}.task .status{grid-column:2;justify-self:start;margin-top:-2px}.task strong,.task small{overflow-wrap:anywhere}.ocean-map{margin:14px}.n1{left:24px}.n2{right:28px}.n3{left:48px}.n4{right:42px}.n5{left:30px}.map-boat{left:45%}.status-grid{gap:9px}.status-card{padding:14px}.setting-card,.install-card{padding:15px}.setting-link{gap:10px}.setting-link .setting-icon{flex-basis:42px;width:42px;height:42px}.cloze-text{padding:16px}.mic{width:100px;height:100px}.record-wrap{padding-top:18px}.usage-list{padding-left:18px}
+    }
+    @media(max-width:340px){.two-buttons{grid-template-columns:1fr}.profile-head p,.route-head p{max-width:260px}.status-card strong{font-size:16px}}
     @media (min-width:651px) and (max-height:730px) { .phone { min-height:620px; height:calc(100vh - 18px); }.stage{padding:9px}.hero{min-height:250px}.ocean-map{min-height:390px}.n5{top:315px} }
     @media (display-mode:standalone) and (max-width:650px) { .manager-entry{top:calc(env(safe-area-inset-top) + 6px)} }
   </style>
@@ -308,7 +313,7 @@
   </main>
   <script src="assets/supabase.min.js?v=7"></script>
   <script src="config.js?v=7"></script>
-  <script src="cloud-sync.js?v=7"></script>
+  <script src="cloud-sync.js?v=8"></script>
   <script>
     const screens = [...document.querySelectorAll('.screen')];
     const navButtons = [...document.querySelectorAll('[data-tab]')];
