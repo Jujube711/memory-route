@@ -75,10 +75,10 @@
     .screen::-webkit-scrollbar { display: none; }
     .hero {
       position: relative;
-      min-height: 272px;
+      min-height: 210px;
       overflow: hidden;
       color: white;
-      padding: 48px 22px 24px;
+      padding: 58px 22px 32px;
       background: linear-gradient(145deg, #15385f 0%, #226f8b 62%, #32b9ad 100%);
       border-radius: 0 0 32px 32px;
     }
@@ -220,6 +220,11 @@
     .cloze-text.reveal .cloze-blank { color: #286b9e; background: #eaf5ff; border-radius: 6px; border-bottom-color: transparent; }
     .dynamic-task { display:none; }
     .dynamic-task.show { display:grid; }
+    .empty-tasks { padding:38px 24px; border:1px solid #edf1f6; border-radius:24px; text-align:center; background:white; box-shadow:0 10px 30px rgba(32,62,96,.05); }
+    .empty-tasks[hidden] { display:none; }
+    .empty-tasks-icon { width:64px; height:64px; display:grid; place-items:center; margin:0 auto 14px; border-radius:21px; color:#2c7d98; background:linear-gradient(145deg,#e4f8f2,#e7f0ff); font-size:29px; }
+    .empty-tasks strong { display:block; margin-bottom:7px; font-size:17px; }
+    .empty-tasks p { margin:0; color:var(--muted); font-size:13px; line-height:1.7; }
     @media(max-width:650px){
       body{background:#f7f9fc;overscroll-behavior:none}.stage{display:block;padding:0}.phone{width:100%;height:100vh;height:100dvh;min-height:100vh;min-height:100dvh;border:0;border-radius:0;box-shadow:none}.phone::before{display:none}.screen{padding-bottom:calc(100px + env(safe-area-inset-bottom))}.hero,.route-head,.topbar{padding-top:calc(48px + env(safe-area-inset-top))}.manager-entry{min-height:44px;display:flex;align-items:center;right:10px;top:calc(env(safe-area-inset-top) + 8px);padding:8px 11px;font-size:12px}.nav{bottom:0;left:0;right:0;height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);border-radius:22px 22px 0 0}.toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center}.phone.keyboard-open .nav{display:none}.phone.keyboard-open .screen{padding-bottom:18px}
     }
@@ -233,19 +238,14 @@
     <section class="phone" aria-label="记忆航线手机端原型">
       <div id="today" class="screen active">
         <header class="hero">
-          <p class="eyebrow">7月23日 · 星期四</p>
-          <h1>晚上好，准备启航吧</h1>
-          <div class="estimate">今天预计学习 25 分钟</div>
-          <div class="route"><div class="route-line"></div><div class="island one"></div><div class="boat">⛵</div><div class="island two"></div></div>
-          <div class="progress-card"><div class="ring"><span>75%</span></div><div class="progress-copy"><strong>今日进度 3/4</strong><small>再完成 1 项即可抵达今日港口</small></div></div>
+          <p id="todayDate" class="eyebrow">今日学习</p>
+          <h1>记忆航线</h1>
+          <div id="taskSummary" class="estimate">今天没有待完成任务</div>
         </header>
         <div class="content">
-          <div class="section-row"><h2>今日任务</h2><span class="pill">⏰ 20:30 提醒</span></div>
+          <div class="section-row"><h2>今日任务</h2><span class="pill">在线同步</span></div>
           <div id="dynamicTasks"></div>
-          <button class="task" data-open="detail"><span class="subject english">英</span><span><strong>背诵 Unit 3 课文</strong><small>预计 8 分钟 · 需要录音</small></span><span class="status">待完成</span></button>
-          <button class="task" data-toast="已进入历史复习"><span class="subject history">史</span><span><strong>复习：鸦片战争</strong><small>第 3 天复习 · 预计 5 分钟</small></span><span class="status">待复习</span></button>
-          <button class="task" data-toast="已打开抄写任务"><span class="subject biology">生</span><span><strong>抄写细胞知识点 × 2遍</strong><small>完成后拍照上传</small></span><span class="status">待完成</span></button>
-          <div class="stats"><div class="stat"><small>本周记忆率</small><strong>86%</strong> <em>↑ 4%</em></div><div class="stat"><small>连续完成</small><strong>5天</strong> <em>航行中</em></div></div>
+          <div id="emptyTasks" class="empty-tasks"><div class="empty-tasks-icon">✓</div><strong>今天没有学习任务</strong><p>管理端布置任务后，会自动同步显示在这里。</p></div>
         </div>
       </div>
 
@@ -297,8 +297,9 @@
     const subjectMap = {历史:['史','history'],地理:['地','biology'],生物:['生','biology'],英语:['英','english']};
     let clozeTasks=window.MemoryRouteCloud?.getTasks() || [], activeClozeTask=null, recordingTask=null;
     const escapeHtml = text => String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const dynamicTasks=document.querySelector('#dynamicTasks');
-    function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">新任务</span></button>`}).join('');}
+    const dynamicTasks=document.querySelector('#dynamicTasks'),emptyTasks=document.querySelector('#emptyTasks'),taskSummary=document.querySelector('#taskSummary');
+    document.querySelector('#todayDate').textContent=new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'long'}).format(new Date());
+    function renderCloudTasks(nextTasks=clozeTasks){clozeTasks=nextTasks;dynamicTasks.innerHTML=clozeTasks.map((task,index)=>{const config=subjectMap[task.subject]||['背','history'];return `<button class="task" data-open="cloze" data-task-index="${index}"><span class="subject ${config[1]}">${config[0]}</span><span><strong>${escapeHtml(task.title)}</strong><small>教材原文 · ${(task.answers||[]).length} 处挖空</small></span><span class="status">待学习</span></button>`}).join('');emptyTasks.hidden=clozeTasks.length>0;taskSummary.textContent=clozeTasks.length?`今天有 ${clozeTasks.length} 项学习任务`:'今天没有待完成任务';}
     renderCloudTasks();
     window.MemoryRouteCloud?.subscribe(renderCloudTasks);
     function loadClozeTask(clozeTask) {
